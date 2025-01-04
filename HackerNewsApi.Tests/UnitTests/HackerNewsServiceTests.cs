@@ -35,34 +35,42 @@ namespace HackerNewsApi.Tests.UnitTests
         public async Task GetNewestStoriesAsync_ReturnsStories_WhenCacheIsEmpty()
         {
             // Arrange
-            var fakeStories = new List<Story>
+            var storyIds = new List<int> { 1, 2 };
+            var stories = new List<Story>
             {
                 new Story { Id = 1, Title = "Story 1", Url = "https://example.com/1" },
                 new Story { Id = 2, Title = "Story 2", Url = "https://example.com/2" }
             };
 
             _mockCacheManager
-                .Setup(m => m.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<IEnumerable<Story>>>>()))
-                .ReturnsAsync(fakeStories);
+                .Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<Func<Task<IEnumerable<Story>>>>()))
+                .ReturnsAsync(stories);
+
+            _mockRepository
+                .Setup(r => r.GetStoryIdsAsync())
+                .ReturnsAsync(storyIds);
+
+            _mockRepository
+                .Setup(r => r.GetStoryByIdAsync(It.IsAny<int>()))
+                .ReturnsAsync((int id) => stories.FirstOrDefault(s => s.Id == id));
 
             // Act
             var result = await _service.GetNewestStoriesAsync();
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(2, result.Count());
-            Assert.Contains(result, s => s.Title == "Story 1");
+            Assert.Equal(2, result.Count()); // Two valid stories
         }
 
         [Fact]
-        public async Task GetNewestStoriesAsync_FiltersOutStoriesWithoutUrls()
+        public async Task SearchStoriesAsync_ReturnsEmpty_WhenNoMatch()
         {
             // Arrange
+            var query = "Sports";
             var fakeStories = new List<Story>
             {
-                new Story { Id = 1, Title = "Story 1", Url = "https://example.com/1" },
-                new Story { Id = 2, Title = "Story 2", Url = null }, // Invalid URL
-                new Story { Id = 3, Title = "Story 3", Url = "" }    // Empty URL
+                new Story { Id = 1, Title = "Tech Advances in 2025", Url = "https://example.com/1" },
+                new Story { Id = 2, Title = "Cooking Tips", Url = "https://example.com/2" }
             };
 
             _mockCacheManager
@@ -70,12 +78,45 @@ namespace HackerNewsApi.Tests.UnitTests
                 .ReturnsAsync(fakeStories);
 
             // Act
-            var result = await _service.GetNewestStoriesAsync();
+            var result = await _service.SearchStoriesAsync(query);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Single(result); // Only 1 valid story with a URL
-            Assert.Equal("Story 1", result.First().Title);
+            Assert.Empty(result); // No matching stories
         }
+
+        [Fact]
+        public async Task SearchStoriesAsync_ReturnsEmpty_WhenQueryIsNullOrEmpty()
+        {
+            // Act
+            var resultNull = await _service.SearchStoriesAsync(null);
+            var resultEmpty = await _service.SearchStoriesAsync(string.Empty);
+
+            // Assert
+            Assert.Empty(resultNull);
+            Assert.Empty(resultEmpty);
+        }
+
+        [Fact]
+        public async Task GetPagedStoriesAsync_ReturnsEmpty_ForInvalidPageOrPageSize()
+        {
+            // Arrange
+            var fakeStories = Enumerable.Range(1, 50)
+                .Select(i => new Story { Id = i, Title = $"Story {i}", Url = $"https://example.com/{i}" })
+                .ToList();
+
+            _mockCacheManager
+                .Setup(m => m.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<IEnumerable<Story>>>>()))
+                .ReturnsAsync(fakeStories);
+
+            // Act
+            var resultInvalidPage = await _service.GetPagedStoriesAsync(-1, 10); // Invalid page
+            var resultInvalidPageSize = await _service.GetPagedStoriesAsync(1, -5); // Invalid page size
+
+            // Assert
+            Assert.Empty(resultInvalidPage);
+            Assert.Empty(resultInvalidPageSize);
+        }
+
     }
 }

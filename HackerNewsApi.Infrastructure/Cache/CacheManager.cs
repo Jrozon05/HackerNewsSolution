@@ -6,6 +6,9 @@ namespace HackerNewsApi.Infrastructure.Cache;
 public interface ICacheManager
 {
     Task<T> GetOrCreateAsync<T>(string key, Func<Task<T>> factory);
+    Task<T> GetOrCreateAsync<T>(string key, TimeSpan expiration, Func<Task<T>> factory);
+    void Set<T>(string key, T value, TimeSpan expiration);
+    bool TryGetValue<T>(string key, out T value); 
 }
 
 public class CacheManager : ICacheManager
@@ -19,32 +22,58 @@ public class CacheManager : ICacheManager
         _logger = logger;
     }
 
-    public async Task<T> GetOrCreateAsync<T>(string key, Func<Task<T>> factory)
+    public bool TryGetValue<T>(string key, out T value)
     {
-        // Check if the item exists in the cache
-        if (_cache.TryGetValue(key, out T cachedValue))
+        var exists = _cache.TryGetValue(key, out value);
+        if (exists)
         {
             _logger.LogInformation("Cache hit for key: {CacheKey}", key);
-            return cachedValue;
+        }
+        else
+        {
+            _logger.LogInformation("Cache miss for key: {CacheKey}", key);
         }
 
-        _logger.LogInformation("Cache miss for key: {CacheKey}. Generating new value.", key);
+        return exists;
+    }
 
-        // Generate the value and cache it
-        var value = await factory();
+    public void Set<T>(string key, T value, TimeSpan expiration)
+    {
         _cache.Set(key, value, new MemoryCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+            AbsoluteExpirationRelativeToNow = expiration
         });
 
-        _logger.LogInformation("Cache updated for key: {CacheKey}", key);
+        _logger.LogInformation("Cache set for key: {CacheKey} with expiration: {Expiration}", key, expiration);
+    }
 
+    public async Task<T> GetOrCreateAsync<T>(string key, Func<Task<T>> factory)
+    {
+        if (TryGetValue(key, out T value))
+        {
+            _logger.LogInformation("Cache hit for key: {CacheKey}", key);
+            return value;
+        }
+
+        _logger.LogInformation("Cache miss for key: {CacheKey}. Fetching new value.", key);
+
+        value = await factory();
+        Set(key, value, TimeSpan.FromMinutes(5)); // Default expiration
         return value;
     }
 
-    public void Remove(string key)
+    public async Task<T> GetOrCreateAsync<T>(string key, TimeSpan expiration, Func<Task<T>> factory)
     {
-        _cache.Remove(key);
-        _logger.LogInformation("Cache entry removed for key: {CacheKey}", key);
+        if (TryGetValue(key, out T value))
+        {
+            _logger.LogInformation("Cache hit for key: {CacheKey}", key);
+            return value;
+        }
+
+        _logger.LogInformation("Cache miss for key: {CacheKey}. Fetching new value.", key);
+
+        value = await factory();
+        Set(key, value, expiration);
+        return value;
     }
 }

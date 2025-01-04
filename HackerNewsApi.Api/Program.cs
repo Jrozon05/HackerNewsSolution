@@ -1,3 +1,4 @@
+using HackerNewsApi.Api.Extensions;
 using HackerNewsApi.Application.Interfaces;
 using HackerNewsApi.Application.Services;
 using HackerNewsApi.Infrastructure.Cache;
@@ -28,11 +29,7 @@ builder.Services.AddCors(options =>
 });
 
 // Dependency Injection
-builder.Services.AddMemoryCache();
-builder.Services.AddScoped<IHackerNewsService, HackerNewsService>();
-builder.Services.AddScoped<IHackerNewsRepository, HackerNewsRepository>();
-builder.Services.AddSingleton<ICacheManager, CacheManager>();
-builder.Services.AddHttpClient<HackerNewsRepository>();
+builder.Services.ConfigureDependencies();
 
 // Enable controllers
 builder.Services.AddControllers();

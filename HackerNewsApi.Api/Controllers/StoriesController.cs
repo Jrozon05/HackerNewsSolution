@@ -32,4 +32,48 @@ public class StoriesController : ControllerBase
             return StatusCode(500, "An error occurred while processing your request.");
         }
     }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchStories([FromQuery] string query)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                _logger.LogWarning("Search query is empty or null.");
+                return BadRequest("Query parameter cannot be empty.");
+            }
+
+            _logger.LogInformation("Searching stories for query: {Query}", query);
+            var stories = await _hackerNewsService.SearchStoriesAsync(query);
+            return Ok(stories);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while searching for stories.");
+            return StatusCode(500, "An error occurred while processing your request.");
+        }
+    }
+
+    [HttpGet("paged")]
+    public async Task<IActionResult> GetPagedStories([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        try
+        {
+            if (page < 1 || pageSize < 1)
+            {
+                _logger.LogWarning("Invalid pagination parameters. Page: {Page}, PageSize: {PageSize}", page, pageSize);
+                return BadRequest("Page and PageSize must be greater than 0.");
+            }
+
+            _logger.LogInformation("Fetching paged stories. Page: {Page}, PageSize: {PageSize}", page, pageSize);
+            var stories = await _hackerNewsService.GetPagedStoriesAsync(page, pageSize);
+            return Ok(stories);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while fetching paged stories.");
+            return StatusCode(500, "An error occurred while processing your request.");
+        }
+    }
 }

@@ -45,5 +45,24 @@ namespace HackerNewsApi.Infrastructure.Repositories
                 throw;
             }
         }
+
+        public async Task<IEnumerable<int>> GetStoryIdsAsync()
+        {
+            _logger.LogInformation("Fetching story IDs from Hacker News API.");
+            var storyIds = await _httpClient.GetFromJsonAsync<IEnumerable<int>>("https://hacker-news.firebaseio.com/v0/newstories.json");
+            _logger.LogInformation("Fetched {Count} story IDs.", storyIds?.Count() ?? 0);
+            return storyIds ?? new List<int>();
+        }
+
+        public async Task<Story> GetStoryByIdAsync(int id)
+        {
+            _logger.LogInformation("Fetching story details for ID: {StoryId}", id);
+            var story = await _httpClient.GetFromJsonAsync<Story>($"https://hacker-news.firebaseio.com/v0/item/{id}.json");
+            if (story == null)
+            {
+                _logger.LogWarning("Story with ID: {StoryId} not found.", id);
+            }
+            return story;
+        }
     }
 }
