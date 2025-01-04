@@ -1,11 +1,70 @@
-<div>
-  <h1>Hacker News Stories</h1>
-  <div *ngIf="stories.length">
-    <ul>
-      <li *ngFor="let story of stories">
-        <a [href]="story.url" target="_blank">{{ story.title }}</a>
-      </li>
-    </ul>
+<div class="p-d-flex p-jc-between p-ai-center p-mb-3 p-p-2 custom-header">
+  <div>
+    <h2>Hacker News Stories</h2>
+    <h5 class="p-text-secondary">Explore the latest and most exciting stories!</h5>
   </div>
-  <div *ngIf="!stories.length">No stories found.</div>
+  <div class="search-container">
+    <input
+      type="text"
+      pInputText
+      [(ngModel)]="searchQuery"
+      (keyup.enter)="onSearch()"
+      placeholder="Enter title or author"
+      class="styled-input"
+    />
+    <button
+      pButton
+      label="Search"
+      icon="pi pi-search"
+      class="styled-button"
+      (click)="onSearch()"
+    ></button>
+  </div>
 </div>
+<br>
+<br>
+<p-table
+  class="custom-table"
+  [value]="stories"
+  [paginator]="true"
+  [rows]="rows"
+  [totalRecords]="totalStories"
+  [lazy]="false"
+  [loading]="loading"
+  [rowsPerPageOptions]="[10, 20, 50]"
+  [tableStyle]="{ 'min-width': '70rem' }"
+  (onPage)="pageChange($event)"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th style="width: 70%;">Title</th>
+      <th style="width: 30%;">Actions</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-story>
+    <tr>
+      <td>
+        <h4 class="p-text-bold p-mb-1">{{ story.title }}</h4>
+        <span class="p-text-secondary">By: {{ story.by }} | Score: {{ story.score }}</span>
+      </td>
+      <td>
+        <a
+          [href]="story.url"
+          target="_blank"
+          class="p-button p-button-link p-button-sm p-text-primary"
+        >
+          <i class="pi pi-external-link"></i> Read More
+        </a>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="2" class="text-center p-p-3">
+        <span class="p-text-secondary">No stories found. Try a different search!</span>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

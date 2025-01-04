@@ -1,12 +1,65 @@
-h1 {
-  font-family: Arial, sans-serif;
+/* Flexbox container for alignment */
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Add spacing between input and button */
+  justify-content: center; /* Center the input and button horizontally */
+  width: 100%;
+  max-width: 500px; /* Set maximum width for the container */
+  margin: 0 auto; /* Center align the container */
 }
 
-ul {
-  list-style-type: none;
-  padding: 0;
+/* Input field styling */
+.styled-input {
+  flex: 1; /* Allow the input to take remaining space */
+  border: 2px solid #d9e2ec;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-li {
-  margin: 10px 0;
+/* Placeholder styling */
+.styled-input::placeholder {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+/* Input focus effect */
+.styled-input:focus {
+  border-color: #28a745;
+  box-shadow: 0 0 6px rgba(40, 167, 69, 0.5);
+  outline: none;
+}
+
+/* Button styling */
+.styled-button {
+  background-color: #28a745;
+  border: none;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Button hover effect */
+.styled-button:hover {
+  background-color: #218838;
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+/* Button focus effect */
+.styled-button:focus {
+  outline: none;
+  box-shadow: 0 0 6px rgba(40, 167, 69, 0.5);
+}
+
+/* Icon inside the button */
+.styled-button .pi {
+  margin-right: 0.5rem;
 }
