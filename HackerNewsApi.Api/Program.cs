@@ -43,7 +43,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "HackerNewsApi",
         Version = "v1",
-        Description = "An API to fetch the newest stories from Hacker News",
+        Description = "API to fetch the newest stories from Hacker News."
     });
 });
 
