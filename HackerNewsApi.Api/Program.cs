@@ -19,14 +19,14 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin() // Allows requests from any origin
-              .AllowAnyMethod() // Allows any HTTP method (GET, POST, etc.)
-              .AllowAnyHeader(); // Allows any HTTP headers
+        options.AddDefaultPolicy(builder =>
+        {
+            builder.WithOrigins("https://hacker-news-angular-hcaydyb6fmahg0ev.eastus2-01.azurewebsites.net")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
     });
-});
 
 // Dependency Injection
 builder.Services.ConfigureDependencies();
@@ -49,7 +49,7 @@ var app = builder.Build();
 // Configure middleware
 app.UseMiddleware<HackerNewsApi.Api.Middlewares.ExceptionHandlingMiddleware>();
 
-app.UseCors("AllowAll");
+app.UseCors();
 // Error handling middleware
 app.UseExceptionHandler("/error"); // Optional: Create an error handling endpoint
 app.UseHsts(); // Enforce strict transport security

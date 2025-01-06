@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment.prod';
 
 @Injectable({
-  providedIn: 'root' // Makes the service globally available without needing to include it in providers
+  providedIn: 'root'
 })
 export class HackerNewsService {
-  private apiUrl = 'http://localhost:5217/api/stories'; // Replace with your backend API URL
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
