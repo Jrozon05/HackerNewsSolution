@@ -30,10 +30,6 @@ jobs:
         env:
           CI: true
 
-      - name: Debug:Check Build Directory After Build
-        run: |
-          ls -la hacker-news-app/dist
-
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -54,11 +50,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: angular-app
-
-      - name: Debug:Check Downloaded Artifact
-        run: |
-          ls -la hacker-news-app/dist/hacker-news-app
-        continue-on-error: true
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
