@@ -1,7 +1,4 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy ASP.Net Core app to Azure Web App - hacker-news-api
+name: Build and Deploy Backend App to Azure
 
 on:
   push:
@@ -10,47 +7,50 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build_and_deploy:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '8.0.x' # Match the runtime used in your backend
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: HackerNewsApi.Api # Ensure this points to your backend project folder
 
-      - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+      - name: Build backend project
+        run: dotnet publish -c Release -o publish
+        working-directory: HackerNewsApi.Api # Ensure this points to your backend project folder
 
-      - name: Upload artifact for deployment job
+      - name: Upload backend build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          name: backend-app
+          path: HackerNewsApi.Api/publish # Ensure this matches your publish output directory
 
   deploy:
     runs-on: windows-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+    needs: build_and_deploy
+
     steps:
-      - name: Download artifact from build job
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Download backend artifact
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
-      
+          name: backend-app
+
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'hacker-news-api'
-          slot-name: 'Production'
-          package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7F81C8A32D8A4C83A80E2E06A7DAE753 }}
+          app-name: 'hacker-news-api' # Replace with your backend App Service name
+          slot-name: 'production'
+          package: HackerNewsApi.Api/publish # Match your backend publish directory
