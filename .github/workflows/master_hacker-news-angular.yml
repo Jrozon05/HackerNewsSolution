@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build_and_deploy:
     runs-on: windows-latest
 
     steps:
@@ -30,30 +30,19 @@ jobs:
         env:
           CI: true
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: angular-app
-          path: hacker-news-app/dist/hacker-news-app # Match your Angular build output directory
+      - name: Debug:Check Build Output
+        run: |
+          dir hacker-news-app\dist\hacker-news-app
+        shell: cmd
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Login to Azure
+      - name: Deploy to Azure Web App
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: angular-app
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'hacker-news-angular'
           slot-name: 'production'
-          package: hacker-news-app/dist/hacker-news-app
+          package: hacker-news-app\dist\hacker-news-app
