@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class HackerNewsService {
-  private apiUrl = 'https://hacker-news-api-fjegh3fcf7bnbjdb.eastus2-01.azurewebsites.net';
+  private apiUrl = 'https://hacker-news-api-fjegh3fcf7bnbjdb.eastus2-01.azurewebsites.net/api/stories';
 
   constructor(private http: HttpClient) {}
 
