@@ -1,0 +1,56 @@
+name: Build and Deploy Backend App to Azure
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x' # Match the runtime used in your backend
+
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: HackerNewsApi.Api # Ensure this points to your backend project folder
+
+      - name: Build backend project
+        run: dotnet publish -c Release -o publish
+        working-directory: HackerNewsApi.Api # Ensure this points to your backend project folder
+
+      - name: Upload backend build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-app
+          path: HackerNewsApi.Api/publish # Ensure this matches your publish output directory
+
+  deploy:
+    runs-on: windows-latest
+    needs: build_and_deploy
+
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-app
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'hacker-news-api' # Replace with your backend App Service name
+          slot-name: 'production'
+          package: HackerNewsApi.Api/publish # Match your backend publish directory
