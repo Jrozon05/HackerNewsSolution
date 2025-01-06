@@ -3,10 +3,6 @@ using HackerNewsApi.Domain.Entities;
 using HackerNewsApi.Infrastructure.Cache;
 using HackerNewsApi.Infrastructure.Intefraces;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace HackerNewsApi.Application.Services
 {
@@ -36,7 +32,7 @@ namespace HackerNewsApi.Application.Services
                 var newestStories = await _cacheManager.GetOrCreateAsync(NewestStoriesCacheKey, TimeSpan.FromMinutes(5), async () =>
                 {
                     var storyIds = await GetAllStoryIdsAsync();
-                    return await FetchStoriesByIdsAsync(storyIds.Take(10));
+                    return await FetchStoriesByIdsAsync(storyIds);
                 });
 
                 _logger.LogInformation("Returning {Count} newest stories.", newestStories.Count());
@@ -59,7 +55,7 @@ namespace HackerNewsApi.Application.Services
                 _logger.LogInformation("Fetching paged stories. Page: {Page}, PageSize: {PageSize}", page, pageSize);
 
                 // Retrieve all story IDs from cache or repository
-                var storyIds = await _cacheManager.GetOrCreateAsync(AllStoryIdsCacheKey, TimeSpan.FromMinutes(10), GetAllStoryIdsAsync);
+                var storyIds = await _cacheManager.GetOrCreateAsync(AllStoryIdsCacheKey, TimeSpan.FromMinutes(1), GetAllStoryIdsAsync);
 
                 // Fetch stories for the requested page
                 var pagedStoryIds = storyIds.Skip((page - 1) * pageSize).Take(pageSize);
@@ -118,4 +114,3 @@ namespace HackerNewsApi.Application.Services
         }
     }
 }
-  

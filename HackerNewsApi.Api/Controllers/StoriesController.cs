@@ -56,7 +56,7 @@ public class StoriesController : ControllerBase
     }
 
     [HttpGet("paged")]
-    public async Task<IActionResult> GetPagedStories([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetPagedStories([FromQuery] int page, [FromQuery] int pageSize)
     {
         try
         {

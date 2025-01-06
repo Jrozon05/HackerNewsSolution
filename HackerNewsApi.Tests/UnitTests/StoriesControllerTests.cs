@@ -144,13 +144,15 @@ namespace HackerNewsApi.Tests.UnitTests
         public async Task GetPagedStories_ReturnsOkResult_WithPagedStories()
         {
             // Arrange
-            var page = 2;
+            var page = 1;
             var pageSize = 5;
 
-            var fakeStories = Enumerable.Range(6, 5) // Generate stories for page 2
+            // Generate fake stories for the second page
+            var fakeStories = Enumerable.Range((page - 1) * pageSize + 1, pageSize) // Generate IDs from 6 to 10
                 .Select(i => new Story { Id = i, Title = $"Story {i}", Url = $"https://example.com/{i}" })
                 .ToList();
 
+            // Mock the service to return the fake stories
             _mockService
                 .Setup(s => s.GetPagedStoriesAsync(page, pageSize))
                 .ReturnsAsync(fakeStories);
@@ -162,9 +164,11 @@ namespace HackerNewsApi.Tests.UnitTests
             Assert.NotNull(result);
             Assert.Equal(200, result.StatusCode);
             var stories = result.Value as IEnumerable<Story>;
-            Assert.Equal(5, stories.Count()); // Ensure 5 stories are returned
-            Assert.Equal("Story 6", stories.First().Title); // Verify the first story on page 2
+            Assert.NotNull(stories); // Ensure stories are not null
+            Assert.Equal(pageSize, stories.Count()); // Verify the number of stories
+            Assert.Equal("Story 1", stories.First().Title); // Verify the first story title on page 1
         }
+
 
         [Fact]
         public async Task GetPagedStories_ReturnsBadRequest_ForInvalidPageOrPageSize()

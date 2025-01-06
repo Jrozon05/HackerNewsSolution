@@ -10,6 +10,10 @@ export class HackerNewsService {
 
   constructor(private http: HttpClient) {}
 
+  getAllStories(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/newest`);
+  }
+
   getPagedStories(page: number, pageSize: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/paged?page=${page}&pageSize=${pageSize}`);
   }
