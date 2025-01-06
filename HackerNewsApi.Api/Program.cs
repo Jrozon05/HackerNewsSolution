@@ -66,7 +66,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // Enable routing and endpoints
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
