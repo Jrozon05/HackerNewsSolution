@@ -11,7 +11,8 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -22,15 +23,20 @@ jobs:
         run: |
           npm install
           npm run build --prod
-        working-directory: hacker-news-app # Specify the correct directory
+        working-directory: hacker-news-app # Ensure this points to your Angular app folder
         env:
           CI: true
+
+      - name: Debug: Check Build Output
+        run: |
+          ls -la hacker-news-app/dist/hacker-news-app
+        continue-on-error: true
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: angular-app
-          path: hacker-news-app/dist/hacker-news-app # Ensure this matches your Angular build output directory
+          path: hacker-news-app/dist/hacker-news-app # Match your Angular build output directory
 
   deploy:
     runs-on: ubuntu-latest
@@ -46,7 +52,12 @@ jobs:
         with:
           name: angular-app
 
-      - name: Deploy to Azure Web App
+      - name: Debug: Check Downloaded Artifact
+        run: |
+          ls -la hacker-news-app/dist/hacker-news-app
+        continue-on-error: true
+
+      - name: Force Deployment to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'hacker-news-angular'
