@@ -1,0 +1,52 @@
+name: Build and Deploy Backend API to Azure
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy:
+    runs-on: windows-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up .NET
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      # Step 3: Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore HackerNewsApi.sln
+
+      # Step 4: Build and publish the API project
+      - name: Build and Publish API Project
+        run: |
+          dotnet publish -c Release -o ./publish HackerNewsApi.Api
+        env:
+          CI: true
+
+      # Step 5: Debug: Verify Build Output
+      - name: Debug:Check Publish Output
+        run: |
+          dir publish
+        shell: cmd
+
+      # Step 6: Deploy to Azure Web App
+      - name: Deploy to Azure Web App
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'hacker-news-api' # Replace with your Azure App Service name for the backend
+          slot-name: 'production'
+          package: publish

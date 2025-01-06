@@ -7,48 +7,42 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build_and_deploy:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
 
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
+
       - name: Install dependencies and build Angular app
         run: |
           npm install
-          npm run build --prod
-        working-directory: hacker-news-app # Specify the correct directory
+          ng build --configuration production
+        working-directory: hacker-news-app # Ensure this points to your Angular app folder
         env:
           CI: true
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: angular-app
-          path: hacker-news-app/dist/hacker-news-app # Ensure this matches your Angular build output directory
+      - name: Debug:Check Build Output
+        run: |
+          dir hacker-news-app\dist\hacker-news-app\browser
+        shell: cmd
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
       - name: Login to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: angular-app
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'hacker-news-angular'
           slot-name: 'production'
-          package: hacker-news-app/dist/hacker-news-app
+          package: hacker-news-app\dist\hacker-news-app\browser # Updated to point to the browser folder
