@@ -27,7 +27,7 @@ jobs:
         env:
           CI: true
 
-      - name: Debug: Check Build Directory After Build
+      - name: Debug:Check Build Directory After Build
         run: |
           ls -la hacker-news-app/dist
 
@@ -52,7 +52,7 @@ jobs:
         with:
           name: angular-app
 
-      - name: Debug: Check Downloaded Artifact
+      - name: Debug:Check Downloaded Artifact
         run: |
           ls -la hacker-news-app/dist/hacker-news-app
         continue-on-error: true
