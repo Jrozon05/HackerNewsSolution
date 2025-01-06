@@ -22,6 +22,7 @@ jobs:
         run: |
           npm install
           npm run build --prod
+        working-directory: hacker-news-app # Specify the correct directory
         env:
           CI: true
 
@@ -29,7 +30,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: angular-app
-          path: dist/hacker-news-app # Ensure this matches your Angular build output directory
+          path: hacker-news-app/dist/hacker-news-app # Ensure this matches your Angular build output directory
 
   deploy:
     runs-on: ubuntu-latest
@@ -50,4 +51,4 @@ jobs:
         with:
           app-name: 'hacker-news-angular'
           slot-name: 'production'
-          package: dist/hacker-news-app # Ensure this matches the build output directory
+          package: hacker-news-app/dist/hacker-news-app
