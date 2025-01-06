@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment.prod';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HackerNewsService {
-  private apiUrl = environment.apiUrl;
+  private apiUrl = 'https://hacker-news-api-fjegh3fcf7bnbjdb.eastus2-01.azurewebsites.net';
 
   constructor(private http: HttpClient) {}
 
