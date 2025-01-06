@@ -18,18 +18,18 @@ import { RatingModule } from 'primeng/rating';
     InputTextModule,
     HttpClientModule,
     FormsModule,
-    RatingModule, // Add RatingModule here
+    RatingModule,
   ],
   templateUrl: './stories.component.html',
   styleUrls: ['./stories.component.css']
 })
 export class StoriesComponent implements OnInit {
   stories: any[] = [];
-  totalStories: number = 0; // Total number of stories for pagination
-  first = 0; // Current offset
-  rows = 10; // Rows per page
-  loading: boolean = false; // Loading indicator
-  searchQuery: string = ''; // Search query
+  totalStories: number = 0;
+  first = 0;
+  rows = 10;
+  loading: boolean = false;
+  searchQuery: string = '';
 
   constructor(private hackerNewsService: HackerNewsService) {}
 
@@ -65,7 +65,7 @@ export class StoriesComponent implements OnInit {
         this.stories = (data || []).map((story: any) => ({
           ...story
         }));
-        this.totalStories = this.stories.length || 0; // Use total count from API
+        this.totalStories = this.stories.length || 0;
         this.loading = false;
       },
       (error) => {
@@ -80,12 +80,12 @@ export class StoriesComponent implements OnInit {
   pageChange(event: any) {
     this.first = event.first;
     this.rows = event.rows;
-    this.loadStories(this.first, this.rows); // Use paginated API
+    this.loadStories(this.first, this.rows);
   }
 
   onSearch() {
     if (this.searchQuery.trim() === '') {
-      this.fetchAllStories(); // Load all stories when no search query
+      this.fetchAllStories();
     } else {
       this.loading = true;
       this.hackerNewsService.searchStories(this.searchQuery).subscribe(

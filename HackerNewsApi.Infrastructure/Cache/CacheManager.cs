@@ -58,7 +58,7 @@ public class CacheManager : ICacheManager
         _logger.LogInformation("Cache miss for key: {CacheKey}. Fetching new value.", key);
 
         value = await factory();
-        Set(key, value, TimeSpan.FromMinutes(5)); // Default expiration
+        Set(key, value, TimeSpan.FromMinutes(1));
         return value;
     }
 

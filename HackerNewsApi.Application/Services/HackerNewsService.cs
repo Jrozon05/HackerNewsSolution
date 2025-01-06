@@ -28,7 +28,6 @@ namespace HackerNewsApi.Application.Services
             {
                 _logger.LogInformation("Fetching newest stories.");
 
-                // Retrieve the newest stories from cache or repository
                 var newestStories = await _cacheManager.GetOrCreateAsync(NewestStoriesCacheKey, TimeSpan.FromMinutes(5), async () =>
                 {
                     var storyIds = await GetAllStoryIdsAsync();
@@ -54,10 +53,8 @@ namespace HackerNewsApi.Application.Services
             {
                 _logger.LogInformation("Fetching paged stories. Page: {Page}, PageSize: {PageSize}", page, pageSize);
 
-                // Retrieve all story IDs from cache or repository
                 var storyIds = await _cacheManager.GetOrCreateAsync(AllStoryIdsCacheKey, TimeSpan.FromMinutes(1), GetAllStoryIdsAsync);
 
-                // Fetch stories for the requested page
                 var pagedStoryIds = storyIds.Skip((page - 1) * pageSize).Take(pageSize);
                 var pagedStories = await FetchStoriesByIdsAsync(pagedStoryIds);
 
@@ -105,11 +102,9 @@ namespace HackerNewsApi.Application.Services
 
         private async Task<IEnumerable<Story>> FetchStoriesByIdsAsync(IEnumerable<int> storyIds)
         {
-            // Fetch stories in parallel
             var fetchTasks = storyIds.Select(id => _repository.GetStoryByIdAsync(id));
             var stories = await Task.WhenAll(fetchTasks);
 
-            // Filter out invalid stories
             return stories.Where(story => story != null && !string.IsNullOrEmpty(story.Url));
         }
     }

@@ -82,7 +82,7 @@ namespace HackerNewsApi.Tests.UnitTests
 
             // Assert
             Assert.NotNull(result);
-            Assert.Empty(result); // No matching stories
+            Assert.Empty(result);
         }
 
         [Fact]
@@ -110,8 +110,8 @@ namespace HackerNewsApi.Tests.UnitTests
                 .ReturnsAsync(fakeStories);
 
             // Act
-            var resultInvalidPage = await _service.GetPagedStoriesAsync(-1, 10); // Invalid page
-            var resultInvalidPageSize = await _service.GetPagedStoriesAsync(1, -5); // Invalid page size
+            var resultInvalidPage = await _service.GetPagedStoriesAsync(-1, 10);
+            var resultInvalidPageSize = await _service.GetPagedStoriesAsync(1, -5);
 
             // Assert
             Assert.Empty(resultInvalidPage);

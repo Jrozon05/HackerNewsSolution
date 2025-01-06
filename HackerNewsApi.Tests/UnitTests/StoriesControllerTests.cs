@@ -147,8 +147,7 @@ namespace HackerNewsApi.Tests.UnitTests
             var page = 1;
             var pageSize = 5;
 
-            // Generate fake stories for the second page
-            var fakeStories = Enumerable.Range((page - 1) * pageSize + 1, pageSize) // Generate IDs from 6 to 10
+            var fakeStories = Enumerable.Range((page - 1) * pageSize + 1, pageSize)
                 .Select(i => new Story { Id = i, Title = $"Story {i}", Url = $"https://example.com/{i}" })
                 .ToList();
 
@@ -164,9 +163,9 @@ namespace HackerNewsApi.Tests.UnitTests
             Assert.NotNull(result);
             Assert.Equal(200, result.StatusCode);
             var stories = result.Value as IEnumerable<Story>;
-            Assert.NotNull(stories); // Ensure stories are not null
-            Assert.Equal(pageSize, stories.Count()); // Verify the number of stories
-            Assert.Equal("Story 1", stories.First().Title); // Verify the first story title on page 1
+            Assert.NotNull(stories);
+            Assert.Equal(pageSize, stories.Count());
+            Assert.Equal("Story 1", stories.First().Title);
         }
 
 
@@ -205,8 +204,6 @@ namespace HackerNewsApi.Tests.UnitTests
             Assert.NotNull(result);
             Assert.Equal(500, result.StatusCode);
             Assert.Equal("An error occurred while processing your request.", result.Value);
-
-            // Verify logger was called
             _mockLogger.Verify(
                 x => x.Log(
                     LogLevel.Error,

@@ -1,9 +1,4 @@
 using HackerNewsApi.Api.Extensions;
-using HackerNewsApi.Application.Interfaces;
-using HackerNewsApi.Application.Services;
-using HackerNewsApi.Infrastructure.Cache;
-using HackerNewsApi.Infrastructure.Intefraces;
-using HackerNewsApi.Infrastructure.Repositories;
 using Microsoft.OpenApi.Models;
 using Serilog;
 
@@ -48,13 +43,13 @@ var app = builder.Build();
 
 // Configure middleware
 app.UseMiddleware<HackerNewsApi.Api.Middlewares.ExceptionHandlingMiddleware>();
+
 // Error handling middleware
-app.UseExceptionHandler("/error"); // Optional: Create an error handling endpoint
-app.UseHsts(); // Enforce strict transport security
+app.UseExceptionHandler("/error");
+app.UseHsts(); 
 
 app.UseCors();
 
-// Enable Swagger
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -65,7 +60,6 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// Enable routing and endpoints
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthorization();
