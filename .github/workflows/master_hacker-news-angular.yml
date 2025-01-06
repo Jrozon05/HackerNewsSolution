@@ -22,15 +22,14 @@ jobs:
       - name: Install dependencies and build Angular app
         run: |
           npm install
-          npm run build --prod
+          ng build --configuration production
         working-directory: hacker-news-app # Ensure this points to your Angular app folder
         env:
           CI: true
 
-      - name: Debug:Check Build Output
+      - name: Debug: Check Build Directory After Build
         run: |
-          ls -la hacker-news-app/dist/hacker-news-app
-        continue-on-error: true
+          ls -la hacker-news-app/dist
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -53,12 +52,12 @@ jobs:
         with:
           name: angular-app
 
-      - name: Debug:Check Downloaded Artifact
+      - name: Debug: Check Downloaded Artifact
         run: |
           ls -la hacker-news-app/dist/hacker-news-app
         continue-on-error: true
 
-      - name: Force Deployment to Azure Web App
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'hacker-news-angular'
